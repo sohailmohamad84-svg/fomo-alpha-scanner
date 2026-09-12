@@ -25,6 +25,14 @@ export class WinnerHunterEngine {
         avgReturnOfWinnersPct: 840,
         currentActiveBuys: [
           {
+            tokenAddress: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pHMM1',
+            symbol: 'HMM',
+            network: 'solana',
+            valueUsd: 19820,
+            timestamp: new Date(Date.now() - 6 * 3600000),
+            hasThesis: true,
+          },
+          {
             tokenAddress: '0x39dbed3a4c25b81b854930be628178e63a8e7e7a',
             symbol: 'ROBIN',
             network: 'robinhood',

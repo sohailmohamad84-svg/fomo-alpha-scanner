@@ -217,6 +217,21 @@ export const MOCK_TOKENS: FomoTokenBoardItem[] = [
     volume24hUsd: 950000,
     fomoBuyers: 5,
   },
+  {
+    rank: 6,
+    token: {
+      symbol: "HMM",
+      name: "Hmm Coin",
+      address: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pHMM1",
+    },
+    holders: 3410,
+    network: "solana",
+    priceUsd: 0.0109,
+    change24h: 44.2,
+    marketCapUsd: 10900000,
+    volume24hUsd: 3200000,
+    fomoBuyers: 68,
+  },
 ];
 
 // High conviction scenario: PONS was bought by 4 top traders within 18 minutes!

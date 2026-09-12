@@ -30,6 +30,15 @@ export async function GET(req: NextRequest) {
     // 2. Synthesize seed theses across tokens
     const sampleTheses = [
       thesisEngine.evaluateThesis({
+        tokenAddress: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pHMM1',
+        network: 'solana',
+        symbol: 'HMM',
+        traderHandle: 'CryptoKaleo',
+        content: 'whoever anyone else on here thinks they are, i am hmm to billions',
+        positionSizeUsd: 19820,
+        traderEquityUsd: 347092,
+      }),
+      thesisEngine.evaluateThesis({
         tokenAddress: '0x39dbed3a4c25b81b854930be628178e63a8e7e7a',
         network: 'robinhood',
         symbol: 'ROBIN',
