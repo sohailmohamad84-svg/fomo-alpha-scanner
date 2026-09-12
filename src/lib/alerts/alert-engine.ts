@@ -36,7 +36,7 @@ export class AlertEngine {
         severity: 'SUCCESS',
         title: '🔥 Smart Money Accumulation: $PONS',
         message: '4 top traders (@CryptoKaleo, @ansem, @theveeman, @murad) accumulated $65.5K within 18 minutes on Robinhood Chain.',
-        tokenAddress: '0x39dbed3a8c6346294b2f15e839e5ec44ab217111',
+        tokenAddress: '0x39dbed3a2bd333467115de45665cc57f813c4571',
         network: 'robinhood',
         score: 92,
         isRead: false,

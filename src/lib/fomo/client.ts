@@ -201,7 +201,7 @@ export class FomoApiClient {
       return {
         holdings: [
           {
-            token: { symbol: 'PONS', address: '0x39dbed3a8c6346294b2f15e839e5ec44ab217111' },
+            token: { symbol: 'PONS', address: '0x39dbed3a2bd333467115de45665cc57f813c4571' },
             chain: 'robinhood',
             amount: 350000,
             priceUsd: 0.0428,
@@ -226,7 +226,7 @@ export class FomoApiClient {
         bestTrades: [
           {
             tradeId: 'tr_spotlight_1',
-            token: { symbol: 'PONS', address: '0x39dbed3a8c6346294b2f15e839e5ec44ab217111' },
+            token: { symbol: 'PONS', address: '0x39dbed3a2bd333467115de45665cc57f813c4571' },
             chain: 'robinhood',
             avgEntryPrice: 0.021,
             avgExitPrice: 0.042,
@@ -245,7 +245,7 @@ export class FomoApiClient {
     }
     if (endpoint.includes('/devs')) {
       return {
-        token: '0x39dbed3a8c6346294b2f15e839e5ec44ab217111',
+        token: '0x39dbed3a2bd333467115de45665cc57f813c4571',
         chain: 'robinhood',
         count: MOCK_TOKEN_DEVS.length,
         devs: MOCK_TOKEN_DEVS,

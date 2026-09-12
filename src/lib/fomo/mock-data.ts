@@ -102,7 +102,7 @@ export const MOCK_TRADERS: FomoLeaderboardTrader[] = [
     holdings: 3,
     wallets: {
       solana: "C0b1eSolanaAddress66hRYoNNDfJHSDgCH7fBbwMQZ",
-      evm: "0x39dbed3a8c6346294b2f15e839e5ec44ab217111",
+      evm: "0x39dbed3a2bd333467115de45665cc57f813c4571",
     },
     topTokens: ["0x39dbed3a"],
     verified: true,
@@ -241,7 +241,7 @@ export const MOCK_TRADES: FomoTrade[] = [
     tradeId: "tr_pons_1",
     token: {
       symbol: "PONS",
-      address: "0x39dbed3a8c6346294b2f15e839e5ec44ab217111",
+      address: "0x39dbed3a2bd333467115de45665cc57f813c4571",
     },
     side: "buy",
     status: "open",
@@ -259,7 +259,7 @@ export const MOCK_TRADES: FomoTrade[] = [
     tradeId: "tr_pons_2",
     token: {
       symbol: "PONS",
-      address: "0x39dbed3a8c6346294b2f15e839e5ec44ab217111",
+      address: "0x39dbed3a2bd333467115de45665cc57f813c4571",
     },
     side: "buy",
     status: "open",
@@ -277,7 +277,7 @@ export const MOCK_TRADES: FomoTrade[] = [
     tradeId: "tr_pons_3",
     token: {
       symbol: "PONS",
-      address: "0x39dbed3a8c6346294b2f15e839e5ec44ab217111",
+      address: "0x39dbed3a2bd333467115de45665cc57f813c4571",
     },
     side: "buy",
     status: "open",
@@ -295,7 +295,7 @@ export const MOCK_TRADES: FomoTrade[] = [
     tradeId: "tr_pons_4",
     token: {
       symbol: "PONS",
-      address: "0x39dbed3a8c6346294b2f15e839e5ec44ab217111",
+      address: "0x39dbed3a2bd333467115de45665cc57f813c4571",
     },
     side: "buy",
     status: "open",
@@ -428,7 +428,7 @@ export const MOCK_TRADER_PROFILES: Record<string, FomoTraderProfile> = {
 };
 
 export const MOCK_TOKEN_STATS: FomoTokenStatsResponse = {
-  token: "0x39dbed3a8c6346294b2f15e839e5ec44ab217111",
+  token: "0x39dbed3a2bd333467115de45665cc57f813c4571",
   chain: "robinhood",
   holders: 1420,
   top10HoldersPercent: 28.4,

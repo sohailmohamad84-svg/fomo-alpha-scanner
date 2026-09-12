@@ -114,8 +114,8 @@ export class PaperTradingEngine {
 
     this.positions.set('pos_pons_1', {
       id: 'pos_pons_1',
-      tokenId: 'ROBINHOOD:0x39dbed3a8c6346294b2f15e839e5ec44ab217111',
-      tokenAddress: '0x39dbed3a8c6346294b2f15e839e5ec44ab217111',
+      tokenId: 'ROBINHOOD:0x39dbed3a2bd333467115de45665cc57f813c4571',
+      tokenAddress: '0x39dbed3a2bd333467115de45665cc57f813c4571',
       network: 'robinhood',
       symbol: 'PONS',
       status: 'OPEN',

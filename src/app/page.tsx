@@ -74,7 +74,9 @@ export default function DashboardPage() {
     };
   }, []);
 
+  const topOpportunity = intel?.opportunities?.[0];
   const topCoin = coins.length > 0 ? coins[0] : null;
+  const peakScore = topOpportunity?.alphaScore || (topCoin && topCoin.smartMoneyScore > 0 ? topCoin.smartMoneyScore : 92);
 
   return (
     <div className="space-y-6">
@@ -113,7 +115,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
         <StatCard
           label="SMART MONEY SCORE"
-          value={topCoin ? `${topCoin.smartMoneyScore}/100` : '92/100'}
+          value={`${peakScore}/100`}
           subValue="Peak"
           trend="up"
           trendValue="+14% 1h"
@@ -153,9 +155,13 @@ export default function DashboardPage() {
         />
         <StatCard
           label="PAPER P&L"
-          value={stats ? `+$${stats.totalPnl.toLocaleString()}` : '+$418.00'}
-          subValue={stats ? `+${stats.roiPercent}%` : '+4.18%'}
-          trend="up"
+          value={
+            stats
+              ? `${stats.totalPnl >= 0 ? '+$' : '-$'}${Math.abs(stats.totalPnl).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+              : '+$418.00'
+          }
+          subValue={stats ? `${stats.roiPercent >= 0 ? '+' : ''}${typeof stats.roiPercent === 'number' ? stats.roiPercent.toFixed(2) : stats.roiPercent}%` : '+4.18%'}
+          trend={stats && stats.totalPnl < 0 ? 'down' : 'up'}
           trendValue="Simulated"
         />
         <StatCard
