@@ -145,9 +145,9 @@ export const MOCK_TOKENS: FomoTokenBoardItem[] = [
   {
     rank: 1,
     token: {
-      symbol: "PONS",
-      name: "Pons Protocol",
-      address: "0x39dbed3a8c6346294b2f15e839e5ec44ab217111",
+      symbol: "ROBIN",
+      name: "Robinhood Coin",
+      address: "0x39dbed3a4c25b81b854930be628178e63a8e7e7a",
     },
     holders: 1420,
     network: "robinhood",
