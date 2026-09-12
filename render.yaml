@@ -1,0 +1,18 @@
+﻿services:
+  - type: web
+    name: fomo-alpha-scanner
+    env: node
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FOMO_API_KEY
+        sync: false
+      - key: FOMO_BASE_URL
+        value: https://api.fomoapi.io
+      - key: FOMO_WS_URL
+        value: wss://api.fomoapi.io/ws/alerts
+      - key: DATABASE_URL
+        value: "file:./dev.db"

@@ -1,0 +1,345 @@
+// This is your Prisma schema file.
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  // To switch to PostgreSQL: change provider to "postgresql" and set DATABASE_URL="postgresql://..."
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Trader {
+  id                   String   @id @default(cuid())
+  handle               String   @unique
+  displayName          String
+  verified             Boolean  @default(false)
+  solanaWallet         String?
+  evmWallet            String?
+  pnl24h               Float    @default(0)
+  pnl7d                Float    @default(0)
+  pnl30d               Float    @default(0)
+  pnlAll               Float    @default(0)
+  volumeUsd            Float    @default(0)
+  tradesCount          Int      @default(0)
+  followersCount       Int      @default(0)
+  followingCount       Int      @default(0)
+  holdingsCount        Int      @default(0)
+  accountAgeDays       Int      @default(0)
+  avgHoldTimeSeconds   Float    @default(0)
+  qualityScore         Float    @default(0)
+  clanName             String?
+  avatar               String?
+  bio                  String?
+  lastSyncAt           DateTime @default(now())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  scores               TraderScore[]
+  snapshots            TraderSnapshot[]
+  trades               Trade[]
+  positions            Position[]
+
+  @@index([handle])
+  @@index([qualityScore])
+}
+
+model TraderScore {
+  id              String   @id @default(cuid())
+  traderId        String
+  traderHandle    String
+  score           Float
+  pnlScore        Float
+  consistencyScore Float
+  recencyScore    Float
+  activityScore   Float
+  accountAgeScore Float
+  verifiedBonus   Float
+  volumeScore     Float
+  holdingScore    Float
+  weightsUsed     String   // JSON string of weights
+  createdAt       DateTime @default(now())
+
+  trader          Trader   @relation(fields: [traderId], references: [id], onDelete: Cascade)
+
+  @@index([traderId, createdAt])
+  @@index([traderHandle])
+}
+
+model TraderSnapshot {
+  id           String   @id @default(cuid())
+  traderId     String
+  pnl24h       Float
+  pnl7d        Float
+  pnl30d       Float
+  volumeUsd    Float
+  tradesCount  Int
+  qualityScore Float
+  timestamp    DateTime @default(now())
+
+  trader       Trader   @relation(fields: [traderId], references: [id], onDelete: Cascade)
+
+  @@index([traderId, timestamp])
+}
+
+model Token {
+  id                String   @id @default(cuid())
+  // Normalized universal ID is network:address
+  universalId       String   @unique
+  address           String
+  network           String   // solana, robinhood, base, bsc, ethereum
+  symbol            String
+  name              String
+  decimals          Int      @default(9)
+  priceUsd          Float    @default(0)
+  change24h         Float    @default(0)
+  marketCapUsd      Float    @default(0)
+  volume24hUsd      Float    @default(0)
+  holdersCount      Int      @default(0)
+  top10HoldersPct   Float?
+  fomoBuyersCount   Int      @default(0)
+  fomoRank          Int?
+  isTrending        Boolean  @default(false)
+  isMostHeld        Boolean  @default(false)
+  isGraduated       Boolean  @default(false)
+  isDevHolding      Boolean  @default(false)
+  image             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  trades            Trade[]
+  positions         Position[]
+  signals           TokenSignal[]
+  simulationTrades  SimulationTrade[]
+
+  @@index([address, network])
+  @@index([symbol])
+}
+
+model Trade {
+  id               String   @id @default(cuid())
+  tradeId          String?  @unique // FOMO tradeId when available
+  traderId         String
+  traderHandle     String
+  tokenId          String
+  tokenAddress     String
+  network          String
+  side             String   // BUY, SELL
+  amount           Float    @default(0)
+  priceUsd         Float    @default(0)
+  valueUsd         Float    @default(0)
+  realizedPnlUsd   Float?
+  unrealizedPnlUsd Float?
+  source           String   @default("feed") // feed, push, captured, onchain
+  timestamp        DateTime @default(now())
+  isDev            Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  trader           Trader   @relation(fields: [traderId], references: [id], onDelete: Cascade)
+  token            Token    @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+
+  @@index([traderHandle])
+  @@index([tokenAddress, network])
+  @@index([timestamp])
+  @@index([traderId, timestamp])
+  @@index([tokenId, timestamp])
+}
+
+model Position {
+  id               String    @id @default(cuid())
+  traderId         String
+  traderHandle     String
+  tokenId          String
+  tokenAddress     String
+  network          String
+  status           String    @default("open") // open, closed
+  amount           Float     @default(0)
+  entryPriceUsd    Float     @default(0)
+  currentPriceUsd  Float     @default(0)
+  valueUsd         Float     @default(0)
+  realizedPnlUsd   Float     @default(0)
+  unrealizedPnlUsd Float     @default(0)
+  openedAt         DateTime  @default(now())
+  closedAt         DateTime?
+  updatedAt        DateTime  @updatedAt
+
+  trader           Trader    @relation(fields: [traderId], references: [id], onDelete: Cascade)
+  token            Token     @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+
+  @@index([traderHandle, status])
+  @@index([tokenAddress, network])
+}
+
+model TokenSignal {
+  id                   String   @id @default(cuid())
+  tokenId              String
+  tokenAddress         String
+  network              String
+  smartMoneyScore      Float    @default(0)
+  conviction           String   @default("Weak") // Weak, Moderate, Strong, Very Strong, Exceptional
+  signalState          String   @default("WATCH") // WATCH, EARLY_SIGNAL, STRONG_SIGNAL, HIGH_CONVICTION, EXIT_WARNING, EXIT
+  uniqueBuyers         Int      @default(0)
+  uniqueHighQuality    Int      @default(0)
+  uniqueVerified       Int      @default(0)
+  uniqueSellers        Int      @default(0)
+  totalBuyVolume       Float    @default(0)
+  totalSellVolume      Float    @default(0)
+  netSmartMoneyFlow    Float    @default(0)
+  averageTraderScore   Float    @default(0)
+  topTraderHandle      String?
+  topTraderScore       Float?
+  firstBuyerHandle     String?
+  firstBuyerTime       DateTime?
+  latestBuyerHandle    String?
+  latestBuyerTime      DateTime?
+  accumulationWindowMin Float   @default(0)
+  signalAgeMinutes     Float    @default(0)
+  riskWarning          String?  // JSON list of risk warning tags
+  scoreBreakdown       String?  // JSON calculation breakdown
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  token                Token    @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+  events               TokenSignalEvent[]
+
+  @@index([smartMoneyScore])
+  @@index([signalState])
+  @@index([tokenAddress, network])
+}
+
+model TokenSignalEvent {
+  id           String      @id @default(cuid())
+  signalId     String
+  previousScore Float
+  newScore     Float
+  previousState String
+  newState     String
+  triggerReason String
+  timestamp    DateTime    @default(now())
+
+  signal       TokenSignal @relation(fields: [signalId], references: [id], onDelete: Cascade)
+
+  @@index([signalId, timestamp])
+}
+
+model SmartMoneyEvent {
+  id             String   @id @default(cuid())
+  eventType      String   // MULTI_BUY, TOP_TRADER_BUY, ACCUMULATION, EXIT_DUMP
+  tokenAddress   String
+  network        String
+  traderHandle   String
+  traderScore    Float
+  tradeAmountUsd Float
+  signalScore    Float
+  title          String
+  description    String
+  timestamp      DateTime @default(now())
+
+  @@index([eventType])
+  @@index([tokenAddress, network])
+  @@index([timestamp])
+}
+
+model PortfolioSimulation {
+  id                String   @id @default(cuid())
+  name              String   @default("Default Paper Portfolio")
+  initialCapitalUsd Float    @default(10000)
+  currentCapitalUsd Float    @default(10000)
+  availableCashUsd  Float    @default(10000)
+  investedUsd       Float    @default(0)
+  realizedPnlUsd    Float    @default(0)
+  unrealizedPnlUsd  Float    @default(0)
+  totalPnlUsd       Float    @default(0)
+  roiPercent        Float    @default(0)
+  winRate           Float    @default(0)
+  totalTrades       Int      @default(0)
+  winningTrades     Int      @default(0)
+  losingTrades      Int      @default(0)
+  maxDrawdown       Float    @default(0)
+  sharpeRatio       Float    @default(0)
+  activePositions   Int      @default(0)
+  isLive            Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  trades            SimulationTrade[]
+}
+
+model SimulationTrade {
+  id               String               @id @default(cuid())
+  simulationId     String
+  tokenId          String
+  tokenAddress     String
+  network          String
+  symbol           String
+  side             String               // BUY, SELL
+  status           String               // OPEN, CLOSED
+  entryPriceUsd    Float
+  exitPriceUsd     Float?
+  quantity         Float
+  investmentUsd    Float
+  currentValueUsd  Float
+  realizedPnlUsd   Float                @default(0)
+  unrealizedPnlUsd Float                @default(0)
+  stopLossPrice    Float?
+  takeProfitPrice  Float?
+  trailingStopPrice Float?
+  highestPriceUsd  Float?
+  entrySignalScore Float
+  entryReason      String
+  exitReason       String?
+  tradersInvolved  String?              // JSON list of trader handles & scores
+  openedAt         DateTime             @default(now())
+  closedAt         DateTime?
+
+  simulation       PortfolioSimulation  @relation(fields: [simulationId], references: [id], onDelete: Cascade)
+  token            Token                @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+
+  @@index([simulationId, status])
+  @@index([tokenAddress, network])
+  @@index([openedAt])
+}
+
+model Alert {
+  id           String   @id @default(cuid())
+  type         String   // HIGH_CONVICTION, ACCUMULATION, TOP_TRADER_BUY, EXIT_WARNING
+  severity     String   @default("INFO") // INFO, WARNING, CRITICAL, SUCCESS
+  title        String
+  message      String
+  tokenAddress String?
+  network      String?
+  traderHandle String?
+  score        Float?
+  isRead       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([type])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model ApiUsage {
+  id               String   @id @default(cuid())
+  endpoint         String
+  method           String   @default("GET")
+  creditsCost      Float    @default(0)
+  creditsRemaining Float?
+  status           Int      @default(200)
+  timestamp        DateTime @default(now())
+
+  @@index([endpoint])
+  @@index([timestamp])
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   // JSON formatted value
+  category  String   @default("general") // scoring, filters, paper_trading, telegram, api
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+  @@index([category])
+}
