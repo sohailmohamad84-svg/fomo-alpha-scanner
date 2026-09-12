@@ -17,8 +17,8 @@ export function AlphaResearchAssistant({ data }: Props) {
   const [input, setInput] = useState('');
 
   const quickPrompts = [
-    'Why is $ROBIN ranked #1?',
-    'Who is accumulating $ROBIN?',
+    'Why is $PONS ranked #1?',
+    'Who is accumulating $HMM?',
     'What are winner-finders buying today?',
     'Which chain has highest alpha activity?',
   ];
@@ -35,27 +35,27 @@ export function AlphaResearchAssistant({ data }: Props) {
     const lower = q.toLowerCase();
     let reply = 'I could not find matching telemetry for that query. Try asking about a ranked token or top trader.';
 
-    if (lower.includes('robin') || lower.includes('ranked #1')) {
+    if (lower.includes('pons') || lower.includes('ranked #1')) {
       reply =
-        '**$ROBIN** is ranked #1 with an Alpha Score of **92/100** because:\n' +
-        '• **Convergence:** 4 elite traders (@CryptoKaleo, @ansem, @murad, @theveeman) accumulated $85,000 within 15 minutes.\n' +
-        '• **Narrative:** 3 published theses formed the "Robinhood Chain First-Movers" narrative cluster (89/100 strength).\n' +
-        '• **Holders:** 5 smart-money holders hold bags; 3 are actively increasing positions.\n' +
-        '• **Timing:** On-chain entry detected ~14.8s prior to FOMO social feed. Price extended +4.2% (early window active).';
-    } else if (lower.includes('who is accumulating') || lower.includes('accumulating')) {
+        '**$PONS** is ranked #1 with an Alpha Score of **95/100** because:\n' +
+        '• **Smart Money Conviction:** Top on-chain whales (@ogle, @unipcs, @AvgJoesCrypto, @Chubbi230) hold over $21,000,000 in positions on Robinhood Chain.\n' +
+        '• **Narrative Consensus:** 3 published theses with deflationary burning mechanism and launchpad dominance.\n' +
+        '• **Holders:** 61,000+ active holders with accelerating buyback velocity.\n' +
+        '• **Timing:** On-chain accumulation active, ground-floor momentum intact.';
+    } else if (lower.includes('hmm') || lower.includes('cryptokaleo') || lower.includes('kaleo')) {
       reply =
-        'Current smart-money accumulation is concentrated in:\n' +
-        '1. **$ROBIN** (Robinhood Chain): @CryptoKaleo ($25K), @ansem ($30K), @murad ($20K).\n' +
-        '2. **$SOLP** (Solana): @ansem ($15K), @murad ($12K).\n' +
-        '3. **$ARC** (Robinhood Chain): @theveeman ($10K).\n' +
-        'No major exit dumps observed on top-ranked tokens in the last 30 minutes.';
+        '**$HMM (Solana)** Telemetry:\n' +
+        '• **Key Accumulator:** @CryptoKaleo has been actively accumulating $HMM ($19.82, $13.31, $10.57 fills) at ~$10.9M Market Cap.\n' +
+        '• **Top Written Thesis:** "whoever anyone else on here thinks they are, i am hmm to billions" (most-liked thesis on FOMO).\n' +
+        '• **Portfolio Equity:** $347,092 with 5 open positions.';
     } else if (lower.includes('winner-finder') || lower.includes('winner finders') || lower.includes('next moves')) {
       reply =
         'Historically proven early discoverers (10x–100x track record) are positioned in:\n' +
-        '• **@ansem** (Discovery Score 96): Buying $ROBIN ($30K) and $SOLP ($15K).\n' +
-        '• **@CryptoKaleo** (Discovery Score 94): Buying $ROBIN ($25K).\n' +
-        '• **@murad** (Discovery Score 92): Buying $ROBIN ($20K).\n' +
-        '**Candidate:** $ROBIN has 3 overlapping winner-finders accumulating simultaneously.';
+        '• **@ogle** (Discovery Score 98): Holding $PONS ($7.1M).\n' +
+        '• **@unipcs** (Discovery Score 96): Holding $PONS ($7.1M).\n' +
+        '• **@AvgJoesCrypto** (Discovery Score 94): Holding $PONS ($2.7M).\n' +
+        '• **@CryptoKaleo** (Discovery Score 94): Accumulating $HMM.\n' +
+        '**Top Candidate:** $PONS has multiple top-ranked discoverers overlapping simultaneously on Robinhood Chain.';
     } else if (lower.includes('chain') || lower.includes('robinhood') || lower.includes('solana')) {
       reply =
         '**Chain Alpha Analysis:**\n' +

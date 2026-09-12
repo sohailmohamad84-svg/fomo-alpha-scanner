@@ -36,9 +36,13 @@ export async function GET(
 
     // Ensure known winner-finders / elite traders have their verified benchmark scores
     const eliteDefaults: Record<string, { score: number; verified: boolean }> = {
+      ogle: { score: 98, verified: true },
+      unipcs: { score: 96, verified: true },
+      AvgJoesCrypto: { score: 94, verified: true },
       CryptoKaleo: { score: 94, verified: true },
+      Chubbi230: { score: 92, verified: true },
+      RugDalio: { score: 91, verified: true },
       ansem: { score: 96, verified: true },
-      theveeman: { score: 88, verified: true },
       murad: { score: 92, verified: true },
     };
     for (const [h, def] of Object.entries(eliteDefaults)) {
@@ -53,30 +57,33 @@ export async function GET(
       (m) => m.token.address.toLowerCase() === address.toLowerCase()
     );
 
-    if (!mockMatch && (address.toLowerCase().includes('39dbed3a') || address.toLowerCase() === '0x39dbed3a4c25b81b854930be628178e63a8e7e7a'.toLowerCase())) {
+    if (!mockMatch && address.toLowerCase().includes('39dbed3a')) {
       mockMatch = {
         rank: 1,
         token: {
-          symbol: 'ROBIN',
-          name: 'Robinhood Coin',
-          address: '0x39dbed3a4c25b81b854930be628178e63a8e7e7a',
+          symbol: 'PONS',
+          name: 'Pons',
+          address: '0x39dbed3a2bd333467115de45665cc57f813c4571',
         },
-        holders: 1420,
+        holders: 61037,
         network: 'robinhood',
-        priceUsd: 0.0428,
+        priceUsd: 0.416,
         change24h: 38.6,
-        marketCapUsd: 42800000,
+        marketCapUsd: 41600000,
         volume24hUsd: 8400000,
         fomoBuyers: 84,
       };
     }
 
-    const symbol = mockMatch?.token.symbol || 'TOKEN';
-    const name = mockMatch?.token.name || symbol;
-    const priceUsd = mockMatch?.priceUsd || 0.0428;
-    const change24h = mockMatch?.change24h || 24.5;
-    const marketCapUsd = mockMatch?.marketCapUsd || 42000000;
+    const symbol = mockMatch?.token.symbol || (address.toLowerCase().includes('39dbed3a') ? 'PONS' : 'TOKEN');
+    const name = mockMatch?.token.name || (symbol === 'PONS' ? 'Pons' : symbol);
+    const priceUsd = mockMatch?.priceUsd || (symbol === 'PONS' ? 0.416 : 0.0428);
+    const change24h = mockMatch?.change24h || 38.6;
+    const marketCapUsd = mockMatch?.marketCapUsd || 41600000;
     const volume24hUsd = mockMatch?.volume24hUsd || 8400000;
+
+    const isPons = symbol === 'PONS' || address.toLowerCase().includes('39dbed3a');
+    const isHmm = symbol === 'HMM' || address.toLowerCase().includes('hmm');
 
     // Build timeline of trader activity
     const now = Date.now();
@@ -87,12 +94,12 @@ export async function GET(
           token: { symbol, address },
           side: 'buy',
           status: 'open',
-          sizeUsd: 15000,
+          sizeUsd: isPons ? 125000 : isHmm ? 19820 : 15000,
           avgEntryPrice: priceUsd * 0.96,
           chain: network,
           ts: now - 18 * 60 * 1000,
         },
-        'CryptoKaleo'
+        isPons ? 'ogle' : isHmm ? 'CryptoKaleo' : 'unipcs'
       ),
       normalizeTrade(
         {
@@ -100,12 +107,12 @@ export async function GET(
           token: { symbol, address },
           side: 'buy',
           status: 'open',
-          sizeUsd: 20500,
+          sizeUsd: isPons ? 95000 : isHmm ? 13310 : 20500,
           avgEntryPrice: priceUsd * 0.98,
           chain: network,
           ts: now - 12 * 60 * 1000,
         },
-        'ansem'
+        isPons ? 'unipcs' : isHmm ? 'CryptoKaleo' : 'AvgJoesCrypto'
       ),
       normalizeTrade(
         {
@@ -113,12 +120,12 @@ export async function GET(
           token: { symbol, address },
           side: 'buy',
           status: 'open',
-          sizeUsd: 12000,
+          sizeUsd: isPons ? 45000 : isHmm ? 10570 : 12000,
           avgEntryPrice: priceUsd * 0.99,
           chain: network,
           ts: now - 7 * 60 * 1000,
         },
-        'theveeman'
+        isPons ? 'AvgJoesCrypto' : isHmm ? 'CryptoKaleo' : 'Chubbi230'
       ),
       normalizeTrade(
         {
@@ -126,12 +133,12 @@ export async function GET(
           token: { symbol, address },
           side: 'buy',
           status: 'open',
-          sizeUsd: 18000,
+          sizeUsd: isPons ? 35000 : isHmm ? 15000 : 18000,
           avgEntryPrice: priceUsd,
           chain: network,
           ts: now - 2 * 60 * 1000,
         },
-        'murad'
+        isPons ? 'Chubbi230' : isHmm ? 'CryptoKaleo' : 'RugDalio'
       ),
     ];
 
@@ -170,19 +177,25 @@ export async function GET(
         tokenAddress: address,
         network,
         symbol,
-        traderHandle: 'CryptoKaleo',
-        content: `Robinhood chain first-mover gaming ecosystem token. High liquidity and accelerating volume.`,
-        positionSizeUsd: 15000,
-        traderEquityUsd: 150000,
+        traderHandle: isPons ? 'ogle' : isHmm ? 'CryptoKaleo' : 'unipcs',
+        content: isPons
+          ? 'remember that since $pons gets burnt every 15 mins, your % of the total outstanding pons tokens continues to go up proportionately'
+          : isHmm
+          ? 'whoever anyone else on here thinks they are, i am hmm to billions'
+          : `Early accumulation on ${symbol}. High liquidity and accelerating volume.`,
+        positionSizeUsd: isPons ? 125000 : 19820,
+        traderEquityUsd: isPons ? 12500000 : 347092,
       }),
       thesisEngine.evaluateThesis({
         tokenAddress: address,
         network,
         symbol,
-        traderHandle: 'ansem',
-        content: `Early accumulation on ${symbol}. Breakout catalyst expected within 48 hours.`,
-        positionSizeUsd: 20500,
-        traderEquityUsd: 180000,
+        traderHandle: isPons ? 'unipcs' : isHmm ? 'CryptoKaleo' : 'AvgJoesCrypto',
+        content: isPons
+          ? 'Robinhood chain eco looking very good today. $PONS looking good for next leg up?'
+          : `Breakout confirmation expected within 48 hours for ${symbol}.`,
+        positionSizeUsd: isPons ? 95000 : 13310,
+        traderEquityUsd: isPons ? 11000000 : 347092,
       }),
     ];
 

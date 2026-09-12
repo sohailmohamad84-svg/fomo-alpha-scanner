@@ -16,6 +16,66 @@ export interface NextMoveCandidate {
 export class WinnerHunterEngine {
   private knownWinnerFinders: Map<string, WinnerFinderProfile> = new Map([
     [
+      'ogle',
+      {
+        traderHandle: 'ogle',
+        discoveryScore: 98,
+        historical10xCount: 16,
+        historical100xCount: 5,
+        avgReturnOfWinnersPct: 1450,
+        currentActiveBuys: [
+          {
+            tokenAddress: '0x39dbed3a2bd333467115de45665cc57f813c4571',
+            symbol: 'PONS',
+            network: 'robinhood',
+            valueUsd: 7127702,
+            timestamp: new Date(Date.now() - 25 * 60000),
+            hasThesis: true,
+          },
+        ],
+      },
+    ],
+    [
+      'unipcs',
+      {
+        traderHandle: 'unipcs',
+        discoveryScore: 96,
+        historical10xCount: 14,
+        historical100xCount: 4,
+        avgReturnOfWinnersPct: 1250,
+        currentActiveBuys: [
+          {
+            tokenAddress: '0x39dbed3a2bd333467115de45665cc57f813c4571',
+            symbol: 'PONS',
+            network: 'robinhood',
+            valueUsd: 7127476,
+            timestamp: new Date(Date.now() - 15 * 60000),
+            hasThesis: true,
+          },
+        ],
+      },
+    ],
+    [
+      'AvgJoesCrypto',
+      {
+        traderHandle: 'AvgJoesCrypto',
+        discoveryScore: 94,
+        historical10xCount: 11,
+        historical100xCount: 3,
+        avgReturnOfWinnersPct: 890,
+        currentActiveBuys: [
+          {
+            tokenAddress: '0x39dbed3a2bd333467115de45665cc57f813c4571',
+            symbol: 'PONS',
+            network: 'robinhood',
+            valueUsd: 2738054,
+            timestamp: new Date(Date.now() - 10 * 60000),
+            hasThesis: true,
+          },
+        ],
+      },
+    ],
+    [
       'CryptoKaleo',
       {
         traderHandle: 'CryptoKaleo',
@@ -30,62 +90,6 @@ export class WinnerHunterEngine {
             network: 'solana',
             valueUsd: 19820,
             timestamp: new Date(Date.now() - 6 * 3600000),
-            hasThesis: true,
-          },
-          {
-            tokenAddress: '0x39dbed3a4c25b81b854930be628178e63a8e7e7a',
-            symbol: 'ROBIN',
-            network: 'robinhood',
-            valueUsd: 35000,
-            timestamp: new Date(Date.now() - 18 * 60000),
-            hasThesis: true,
-          },
-        ],
-      },
-    ],
-    [
-      'ansem',
-      {
-        traderHandle: 'ansem',
-        discoveryScore: 96,
-        historical10xCount: 14,
-        historical100xCount: 4,
-        avgReturnOfWinnersPct: 1250,
-        currentActiveBuys: [
-          {
-            tokenAddress: '0x39dbed3a4c25b81b854930be628178e63a8e7e7a',
-            symbol: 'ROBIN',
-            network: 'robinhood',
-            valueUsd: 42000,
-            timestamp: new Date(Date.now() - 12 * 60000),
-            hasThesis: true,
-          },
-          {
-            tokenAddress: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263',
-            symbol: 'BONK',
-            network: 'solana',
-            valueUsd: 28000,
-            timestamp: new Date(Date.now() - 45 * 60000),
-            hasThesis: false,
-          },
-        ],
-      },
-    ],
-    [
-      'murad',
-      {
-        traderHandle: 'murad',
-        discoveryScore: 92,
-        historical10xCount: 9,
-        historical100xCount: 2,
-        avgReturnOfWinnersPct: 780,
-        currentActiveBuys: [
-          {
-            tokenAddress: '0x39dbed3a4c25b81b854930be628178e63a8e7e7a',
-            symbol: 'ROBIN',
-            network: 'robinhood',
-            valueUsd: 30000,
-            timestamp: new Date(Date.now() - 8 * 60000),
             hasThesis: true,
           },
         ],
