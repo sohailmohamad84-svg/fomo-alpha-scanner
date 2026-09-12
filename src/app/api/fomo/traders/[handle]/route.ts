@@ -19,13 +19,33 @@ export async function GET(
       fomoClient.getTraderSpotlight(cleanHandle),
     ]);
 
-    const scoreResult = traderScorer.calculateScore(profile);
+    const { traderDNAService } = await import('@/lib/dna/trader-dna');
+    const { chainSpecializer } = await import('@/lib/chains/chain-specializer');
+
+    const dna = traderDNAService.computeDNA({
+      ...profile,
+      tradesHistory: tradesRes.trades || [],
+    });
+
+    const tradesByChain: Record<string, any[]> = {};
+    (tradesRes.trades || []).forEach((t: any) => {
+      const chain = (t.chain || 'robinhood').toLowerCase();
+      if (!tradesByChain[chain]) tradesByChain[chain] = [];
+      tradesByChain[chain].push(t);
+    });
+
+    const chainProfile = chainSpecializer.evaluateTraderByChain(
+      cleanHandle,
+      dna.traderScore,
+      tradesByChain
+    );
 
     return NextResponse.json({
       trader: {
         ...profile,
-        qualityScore: scoreResult.score,
-        scoreBreakdown: scoreResult,
+        qualityScore: dna.traderScore,
+        dna,
+        chainProfile,
       },
       trades: tradesRes.trades || [],
       balances: balancesRes.holdings || [],

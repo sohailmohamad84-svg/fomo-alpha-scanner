@@ -13,6 +13,7 @@ import {
   Bell,
   LineChart,
   LayoutDashboard,
+  FlaskConical,
 } from 'lucide-react';
 
 export function TerminalNav() {
@@ -52,6 +53,13 @@ export function TerminalNav() {
       href: '/backtest',
       label: 'Backtesting',
       icon: <LineChart className="h-4 w-4" />,
+    },
+    {
+      href: '/research',
+      label: 'Research Lab',
+      icon: <FlaskConical className="h-4 w-4 text-purple-400" />,
+      badge: 'NEW',
+      badgeColor: 'bg-purple-950/40 text-purple-400 border-purple-500/40',
     },
     {
       href: '/alerts',

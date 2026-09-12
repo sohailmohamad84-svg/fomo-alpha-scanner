@@ -19,24 +19,34 @@ import { StatCard } from '@/components/ui/StatCard';
 import { Badge } from '@/components/ui/Badge';
 import { EarlyEntryCard } from '@/components/trading/EarlyEntryCard';
 import { PaperTradeModal } from '@/components/trading/PaperTradeModal';
+import { AlphaConvergenceMatrix } from '@/components/trading/AlphaConvergenceMatrix';
+import { NarrativeRadar } from '@/components/trading/NarrativeRadar';
+import { WinnerHunterCard } from '@/components/trading/WinnerHunterCard';
+import { AccumulationMap } from '@/components/trading/AccumulationMap';
+import { AlphaResearchAssistant } from '@/components/assistant/AlphaResearchAssistant';
 
 export default function DashboardPage() {
   const [coins, setCoins] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
+  const [intel, setIntel] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [liveTrades, setLiveTrades] = useState<any[]>([]);
   const [selectedTokenForTrade, setSelectedTokenForTrade] = useState<any | null>(null);
 
   const fetchDashboardData = async () => {
     try {
-      const [coinsRes, statsRes] = await Promise.all([
+      const [coinsRes, statsRes, intelRes] = await Promise.all([
         fetch('/api/fomo/tokens/winning'),
         fetch('/api/paper-trading/stats'),
+        fetch('/api/intelligence/summary'),
       ]);
       const coinsData = await coinsRes.json();
       const statsData = await statsRes.json();
+      const intelData = await intelRes.json();
+
       setCoins(coinsData.coins || []);
       setStats(statsData);
+      setIntel(intelData);
     } catch (err: any) {
       console.warn('[Dashboard] Data fetch warning:', err.message);
     } finally {
@@ -156,60 +166,21 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Featured High Conviction Coin Spotlight */}
-      {topCoin && (
-        <EarlyEntryCard
-          tokenSymbol={topCoin.symbol}
-          firstBuyer={topCoin.firstBuyer || 'CryptoKaleo'}
-          firstBuyTime={topCoin.firstBuyTime || '10:01:24 UTC'}
-          firstBuyPriceUsd={topCoin.priceUsd * 0.96}
-          followingTradersCount={topCoin.followingTradersCount || 3}
-          accumulationWindowMinutes={topCoin.accumulationWindowMinutes || 18}
-          totalAccumulatedUsd={topCoin.buyVolume || 65500}
-          timeline={[
-            {
-              traderHandle: 'CryptoKaleo',
-              traderScore: 92,
-              amountUsd: 15000,
-              priceUsd: 0.0412,
-              timestamp: new Date(Date.now() - 18 * 60 * 1000),
-              timeFormatted: '18m ago',
-              minutesAfterFirst: 0,
-              isFirst: true,
-            },
-            {
-              traderHandle: 'ansem',
-              traderScore: 88,
-              amountUsd: 20500,
-              priceUsd: 0.0418,
-              timestamp: new Date(Date.now() - 12 * 60 * 1000),
-              timeFormatted: '12m ago',
-              minutesAfterFirst: 6,
-              isFirst: false,
-            },
-            {
-              traderHandle: 'theveeman',
-              traderScore: 85,
-              amountUsd: 12000,
-              priceUsd: 0.0422,
-              timestamp: new Date(Date.now() - 7 * 60 * 1000),
-              timeFormatted: '7m ago',
-              minutesAfterFirst: 11,
-              isFirst: false,
-            },
-            {
-              traderHandle: 'murad',
-              traderScore: 94,
-              amountUsd: 18000,
-              priceUsd: 0.0426,
-              timestamp: new Date(Date.now() - 2 * 60 * 1000),
-              timeFormatted: '2m ago',
-              minutesAfterFirst: 16,
-              isFirst: false,
-            },
-          ]}
-        />
+      {/* Alpha Convergence Matrix for Peak Opportunity */}
+      {intel?.opportunities && intel.opportunities.length > 0 && (
+        <div className="space-y-2">
+          <div className="text-[11px] font-mono text-terminal-green uppercase tracking-wider font-bold">
+            ⚡ Primary Alpha Opportunity Pipeline
+          </div>
+          <AlphaConvergenceMatrix opportunity={intel.opportunities[0]} />
+        </div>
       )}
+
+      {/* Narrative Radar & Winner Hunter (Dual Panel) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <NarrativeRadar narratives={intel?.narratives || []} />
+        <WinnerHunterCard candidates={intel?.nextMoves || []} />
+      </div>
 
       {/* Main Section: Top Winning Coins (Section 16) */}
       <div className="rounded border border-terminal-border bg-terminal-panel">
@@ -382,6 +353,14 @@ export default function DashboardPage() {
           </table>
         </div>
       </div>
+
+      {/* Cross-Sectional Accumulation Matrix */}
+      {intel?.accumulationMatrix && (
+        <AccumulationMap matrix={intel.accumulationMatrix} />
+      )}
+
+      {/* Data-Grounded Alpha Research Assistant */}
+      <AlphaResearchAssistant data={intel} />
 
       {/* Trade Execution Modal */}
       {selectedTokenForTrade && (

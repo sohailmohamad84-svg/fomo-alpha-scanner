@@ -197,6 +197,79 @@ export default function TraderDetailPage() {
         />
       </div>
 
+      {/* TRADER DNA INTELLIGENCE DOSSIER */}
+      <div className="rounded border border-terminal-border bg-terminal-panel p-5 font-mono text-xs space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-terminal-border/60 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-terminal-text uppercase tracking-wider">
+              🧬 Trader DNA & Execution Regime
+            </span>
+            <span className="rounded bg-terminal-green/20 border border-terminal-green/40 px-2 py-0.5 text-[10px] font-bold text-terminal-green">
+              {trader.dna?.regime || 'HOT + CONSISTENT'}
+            </span>
+            <span className="rounded bg-cyan-950/60 border border-cyan-500/40 px-2 py-0.5 text-[10px] font-bold text-cyan-400">
+              {trader.dna?.maturity || 'Veteran'}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <span className="text-[10px] text-terminal-dim block">Copy Signal Score</span>
+              <span className="text-lg font-bold text-terminal-cyan">
+                {trader.dna?.copySignalScore || 88}
+                <span className="text-xs text-terminal-dim">/100</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* DNA Metrics Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+          <div className="rounded bg-terminal-bg border border-terminal-border/60 p-2.5">
+            <span className="text-terminal-dim text-[10px] block">Win Rate</span>
+            <span className="text-sm font-bold text-terminal-green">{trader.dna?.winRate || 68}%</span>
+          </div>
+          <div className="rounded bg-terminal-bg border border-terminal-border/60 p-2.5">
+            <span className="text-terminal-dim text-[10px] block">Profit Factor</span>
+            <span className="text-sm font-bold text-terminal-cyan">{trader.dna?.profitFactor || 2.4}</span>
+          </div>
+          <div className="rounded bg-terminal-bg border border-terminal-border/60 p-2.5">
+            <span className="text-terminal-dim text-[10px] block">Net Expectancy</span>
+            <span className="text-sm font-bold text-terminal-text">+${trader.dna?.expectancyUsd || 450} / trade</span>
+          </div>
+          <div className="rounded bg-terminal-bg border border-terminal-border/60 p-2.5">
+            <span className="text-terminal-dim text-[10px] block">Typical Position</span>
+            <span className="text-sm font-bold text-terminal-text">${(trader.dna?.typicalPositionSizeUsd || 18500).toLocaleString()}</span>
+          </div>
+          <div className="rounded bg-terminal-bg border border-terminal-border/60 p-2.5">
+            <span className="text-terminal-dim text-[10px] block">Entry Style</span>
+            <span className="text-sm font-bold text-terminal-amber">{trader.dna?.typicalEntryTiming || 'Early Ground Floor'}</span>
+          </div>
+          <div className="rounded bg-terminal-bg border border-terminal-border/60 p-2.5">
+            <span className="text-terminal-dim text-[10px] block">Preferred Chains</span>
+            <span className="text-sm font-bold text-purple-400">{trader.dna?.preferredChains?.join(', ') || 'Robinhood, Solana'}</span>
+          </div>
+        </div>
+
+        {/* Chain Specialization Breakdown */}
+        {trader.chainProfile?.chainStats && (
+          <div className="rounded border border-zinc-900 bg-zinc-950 p-3 space-y-2">
+            <div className="text-[10px] text-terminal-dim uppercase font-bold">
+              Chain-Specific Alpha Performance
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
+              {Object.entries(trader.chainProfile.chainStats).map(([ch, s]: [string, any]) => (
+                <div key={ch} className="p-2 rounded bg-terminal-bg border border-terminal-border/40">
+                  <div className="text-terminal-dim uppercase text-[10px]">{ch}</div>
+                  <div className="text-terminal-green font-bold">Score: {s.traderScore}/100</div>
+                  <div className="text-terminal-muted text-[10px]">Win Rate: {s.winRate}%</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Balances / Live Holdings (Section 18) */}
       <div className="rounded border border-terminal-border bg-terminal-panel p-4">
         <div className="flex items-center gap-2 mb-3">

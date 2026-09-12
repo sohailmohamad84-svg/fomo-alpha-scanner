@@ -111,6 +111,61 @@ export async function GET(
 
     const earlyEntry = detectEarlyEntry(trades, simpleScores);
 
+    // Intelligence upgrade engines
+    const { holderEngine } = await import('@/lib/holders/holder-engine');
+    const { thesisEngine } = await import('@/lib/thesis/thesis-engine');
+    const { narrativeEngine } = await import('@/lib/narrative/narrative-engine');
+    const { alphaEngineV3 } = await import('@/lib/scoring/alpha-v3');
+    const { positionBuildingDetector } = await import('@/lib/scoring/position-building');
+    const { dualStreamManager } = await import('@/lib/realtime/dual-stream');
+
+    const holderEval = holderEngine.evaluateTokenHolders(
+      address,
+      network,
+      holdersRes.holders.map((h: any) => ({
+        address: h.address,
+        traderHandle: h.traderHandle,
+        balance: h.balance,
+        valueUsd: h.valueUsd,
+        holdingDurationHours: h.holdingDurationHours,
+        previousBalance: h.balance * 0.9,
+      })),
+      traderScores
+    );
+
+    const theses = [
+      thesisEngine.evaluateThesis({
+        tokenAddress: address,
+        network,
+        symbol,
+        traderHandle: 'CryptoKaleo',
+        content: `Robinhood chain first-mover gaming ecosystem token. High liquidity and accelerating volume.`,
+        positionSizeUsd: 15000,
+        traderEquityUsd: 150000,
+      }),
+      thesisEngine.evaluateThesis({
+        tokenAddress: address,
+        network,
+        symbol,
+        traderHandle: 'ansem',
+        content: `Early accumulation on ${symbol}. Breakout catalyst expected within 48 hours.`,
+        positionSizeUsd: 20500,
+        traderEquityUsd: 180000,
+      }),
+    ];
+
+    const narrativeClusters = narrativeEngine.clusterTheses(theses, traderScores);
+    const topNarrative = narrativeClusters[0] || null;
+
+    const dualStreamMetrics = dualStreamManager.registerFeedEvent({
+      id: `feed_${Date.now()}`,
+      tokenAddress: address,
+      network,
+      traderHandle: 'CryptoKaleo',
+      valueUsd: 15000,
+      timestamp: new Date(),
+    });
+
     const isDevSelling = devInfo.devs.some((d) => (d.realizedPnlUsd || 0) > 10000 && d.amount === 0);
     const risk = evaluateTokenRisk({
       liquidityUsd: 180000,
@@ -123,6 +178,51 @@ export async function GET(
       totalBuyVolume: signal.totalBuyVolume,
       totalSellVolume: signal.totalSellVolume,
     });
+
+    const alphaV3 = alphaEngineV3.compute({
+      tokenAddress: address,
+      network,
+      symbol,
+      name,
+      priceUsd,
+      trades: trades.map((t) => ({
+        traderHandle: t.traderHandle,
+        side: t.side,
+        valueUsd: t.valueUsd,
+        priceUsd: t.priceUsd,
+        timestamp: t.timestamp,
+      })),
+      traderScores,
+      holderMetrics: holderEval.metrics,
+      narrativeCluster: topNarrative,
+      dualStream: dualStreamMetrics,
+      tokenContext: {
+        isTrending: true,
+        fomoBuyersCount: mockMatch?.fomoBuyers || 25,
+        liquidityUsd: 180000,
+        isDevSelling,
+      },
+    });
+
+    const positionBuilding = positionBuildingDetector.analyzeTraderBuys([
+      {
+        tokenAddress: address,
+        network,
+        symbol,
+        traderHandle: 'CryptoKaleo',
+        valueUsd: 3500,
+        timestamp: new Date(Date.now() - 35 * 60000),
+      },
+      {
+        tokenAddress: address,
+        network,
+        symbol,
+        traderHandle: 'CryptoKaleo',
+        valueUsd: 15000,
+        timestamp: new Date(Date.now() - 18 * 60000),
+        hasThesis: true,
+      },
+    ]);
 
     return NextResponse.json({
       token: {
@@ -137,10 +237,17 @@ export async function GET(
         volume24hUsd,
       },
       signal,
+      alphaV3,
       earlyEntry,
       risk,
       tokenStats,
       devInfo,
+      theses,
+      narrativeClusters,
+      holderMetrics: holderEval.metrics,
+      smartHolders: holderEval.smartHolders,
+      dualStreamMetrics,
+      positionBuilding,
       holders: holdersRes.holders,
       tradesTimeline: trades.map((t) => ({
         ...t,
