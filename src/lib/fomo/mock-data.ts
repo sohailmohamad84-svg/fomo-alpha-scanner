@@ -492,15 +492,15 @@ export const MOCK_TOKEN_DEVS: FomoTokenDevItem[] = [
 ];
 
 export const MOCK_ME: FomoMeResponse = {
-  tier: "Starter",
-  plan: "Starter ($49.99/mo)",
+  tier: "Free",
+  plan: "free",
   credits: {
-    monthly: 2500000,
-    usedThisMonth: 128500,
+    monthly: 250000,
+    usedThisMonth: 90875,
     prepaid: 0,
-    remaining: 2371500,
+    remaining: 159125,
   },
-  expiresAt: "2026-10-15T00:00:00Z",
+  expiresAt: undefined,
   streams: {
     appFeed: true,
     onChain: false,

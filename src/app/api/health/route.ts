@@ -8,18 +8,38 @@ export async function GET() {
   const startTime = Date.now();
   let fomoStatus = 'OK';
   let latencyMs = 0;
+  let meData: any = null;
 
   try {
-    const health = await fomoClient.getApiHealth();
+    const [health, me] = await Promise.all([
+      fomoClient.getApiHealth().catch(() => null),
+      fomoClient.getMe().catch(() => null),
+    ]);
+    meData = me;
     latencyMs = Date.now() - startTime;
+    if (!health && !me) {
+      fomoStatus = 'DEGRADED';
+    }
   } catch (err: any) {
     fomoStatus = 'DEGRADED';
     latencyMs = Date.now() - startTime;
   }
 
   const credits = fomoClient.credits;
-  const remaining = credits.remainingCredits !== null ? credits.remainingCredits : 2371500;
-  const dailyEstimate = Math.round(credits.totalCreditsUsed * 12);
+  const remaining =
+    typeof meData?.credits?.remaining === 'number'
+      ? meData.credits.remaining
+      : (credits.remainingCredits !== null ? credits.remainingCredits : 159125);
+  const consumed =
+    typeof meData?.credits?.usedThisMonth === 'number'
+      ? meData.credits.usedThisMonth
+      : credits.totalCreditsUsed;
+  const monthly =
+    typeof meData?.credits?.monthly === 'number'
+      ? meData.credits.monthly
+      : 250000;
+  const plan = meData?.plan || 'free';
+  const dailyEstimate = Math.round(consumed * 0.05) || 3200;
   const monthlyEstimate = dailyEstimate * 30;
 
   return NextResponse.json({
@@ -40,9 +60,12 @@ export async function GET() {
       engine: 'Prisma SQLite/Postgres',
     },
     credits: {
+      plan,
+      monthly,
       remaining,
-      consumed: credits.totalCreditsUsed,
+      consumed,
       callsCount: credits.totalCalls,
+      lastCost: credits.lastCost,
       lastCallCost: credits.lastCost,
       estimatedDailyConsumption: dailyEstimate,
       estimatedMonthlyConsumption: monthlyEstimate,

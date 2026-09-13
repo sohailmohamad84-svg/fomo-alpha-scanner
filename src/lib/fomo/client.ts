@@ -46,9 +46,9 @@ export class FomoApiClient {
   private cache: Map<string, CacheEntry<any>> = new Map();
   public credits: CreditTracker = {
     totalCalls: 0,
-    totalCreditsUsed: 0,
+    totalCreditsUsed: 90875,
     lastCost: 0,
-    remainingCredits: 2371500,
+    remainingCredits: 159125,
     history: [],
   };
 
@@ -363,7 +363,16 @@ export class FomoApiClient {
   }
 
   public async getMe(): Promise<FomoMeResponse> {
-    return this.fetchWithAuth<FomoMeResponse>('/v2/me', {}, 60000);
+    const res = await this.fetchWithAuth<FomoMeResponse>('/v2/me', {}, 60000);
+    if (res && res.credits) {
+      if (typeof res.credits.remaining === 'number') {
+        this.credits.remainingCredits = res.credits.remaining;
+      }
+      if (typeof res.credits.usedThisMonth === 'number') {
+        this.credits.totalCreditsUsed = res.credits.usedThisMonth;
+      }
+    }
+    return res;
   }
 
   public async getApiHealth(): Promise<{ ok: boolean; traders: number; uptime: number }> {

@@ -29,24 +29,28 @@ export default function DashboardPage() {
   const [coins, setCoins] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [intel, setIntel] = useState<any>(null);
+  const [health, setHealth] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [liveTrades, setLiveTrades] = useState<any[]>([]);
   const [selectedTokenForTrade, setSelectedTokenForTrade] = useState<any | null>(null);
 
   const fetchDashboardData = async () => {
     try {
-      const [coinsRes, statsRes, intelRes] = await Promise.all([
+      const [coinsRes, statsRes, intelRes, healthRes] = await Promise.all([
         fetch('/api/fomo/tokens/winning'),
         fetch('/api/paper-trading/stats'),
         fetch('/api/intelligence/summary'),
+        fetch('/api/health'),
       ]);
       const coinsData = await coinsRes.json();
       const statsData = await statsRes.json();
       const intelData = await intelRes.json();
+      const healthData = await healthRes.json().catch(() => null);
 
       setCoins(coinsData.coins || []);
       setStats(statsData);
       setIntel(intelData);
+      if (healthData) setHealth(healthData);
     } catch (err: any) {
       console.warn('[Dashboard] Data fetch warning:', err.message);
     } finally {
@@ -166,8 +170,18 @@ export default function DashboardPage() {
         />
         <StatCard
           label="CREDITS REMAINING"
-          value="2.37M"
-          subValue="Starter"
+          value={
+            health?.credits?.remaining !== undefined
+              ? (health.credits.remaining >= 1000000
+                  ? `${(health.credits.remaining / 1000000).toFixed(2)}M`
+                  : health.credits.remaining.toLocaleString())
+              : '159,125'
+          }
+          subValue={
+            health?.credits?.plan
+              ? health.credits.plan.toUpperCase()
+              : 'FREE'
+          }
           icon={<Coins className="h-4 w-4 text-terminal-amber" />}
         />
       </div>

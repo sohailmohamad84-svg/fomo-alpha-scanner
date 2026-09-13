@@ -8,7 +8,7 @@ import { Activity, ShieldCheck, Zap, Search, Coins, RefreshCw } from 'lucide-rea
 export function TerminalHeader() {
   const [utcTime, setUtcTime] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [credits, setCredits] = useState<number | null>(2371500);
+  const [credits, setCredits] = useState<number | null>(159125);
   const router = useRouter();
 
   useEffect(() => {
@@ -19,6 +19,17 @@ export function TerminalHeader() {
     updateTime();
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    fetch('/api/health')
+      .then((res) => res.json())
+      .then((data) => {
+        if (typeof data?.credits?.remaining === 'number') {
+          setCredits(data.credits.remaining);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -79,7 +90,7 @@ export function TerminalHeader() {
             <Coins className="h-3.5 w-3.5 text-terminal-amber" />
             <span>Credits:</span>
             <span className="font-bold text-terminal-text">
-              {credits ? credits.toLocaleString() : '2,371,500'}
+              {credits !== null ? credits.toLocaleString() : '159,125'}
             </span>
           </Link>
 

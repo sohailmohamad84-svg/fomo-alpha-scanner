@@ -82,14 +82,14 @@ export default function ApiHealthPage() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <StatCard
           label="CREDITS REMAINING"
-          value={credits.remaining ? credits.remaining.toLocaleString() : '2,371,500'}
-          subValue="Monthly Bucket"
+          value={credits.remaining ? credits.remaining.toLocaleString() : '159,125'}
+          subValue={credits.plan ? `${credits.plan.toUpperCase()} Plan (${credits.monthly ? credits.monthly.toLocaleString() : '250,000'}/mo)` : 'FREE Plan (250,000/mo)'}
           icon={<Coins className="h-4 w-4 text-terminal-amber" />}
           highlight={true}
         />
         <StatCard
           label="CREDITS CONSUMED"
-          value={credits.consumed ? credits.consumed.toLocaleString() : '128,500'}
+          value={credits.consumed ? credits.consumed.toLocaleString() : '90,875'}
           subValue="This Billing Cycle"
         />
         <StatCard
@@ -226,7 +226,7 @@ export default function ApiHealthPage() {
                       {h.cost} credits
                     </td>
                     <td className="p-2.5 text-terminal-muted">
-                      {h.remaining ? h.remaining.toLocaleString() : '2,371,500'}
+                      {h.remaining ? h.remaining.toLocaleString() : '159,125'}
                     </td>
                     <td className="p-2.5 text-right">
                       <span className="text-terminal-green font-bold">200 OK</span>
@@ -238,7 +238,7 @@ export default function ApiHealthPage() {
                   <td className="p-2.5 text-terminal-dim">Just now</td>
                   <td className="p-2.5 font-bold text-terminal-text">GET /v2/leaderboard/24h</td>
                   <td className="p-2.5 text-center font-bold text-terminal-amber">250 credits</td>
-                  <td className="p-2.5 text-terminal-muted">2,371,500</td>
+                  <td className="p-2.5 text-terminal-muted">159,125</td>
                   <td className="p-2.5 text-right">
                     <span className="text-terminal-green font-bold">200 OK</span>
                   </td>
