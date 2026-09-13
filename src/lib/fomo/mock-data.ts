@@ -160,6 +160,21 @@ export const MOCK_TOKENS: FomoTokenBoardItem[] = [
   {
     rank: 2,
     token: {
+      symbol: "CASHCAT",
+      name: "CashCat",
+      address: "0x020bfc650a365f8bb26819deaabf3e21291018b4",
+    },
+    holders: 14200,
+    network: "robinhood",
+    priceUsd: 0.0428,
+    change24h: 42.4,
+    marketCapUsd: 4280000,
+    volume24hUsd: 1850000,
+    fomoBuyers: 42,
+  },
+  {
+    rank: 3,
+    token: {
       symbol: "SOLAI",
       name: "Solana Autonomous Intelligence",
       address: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
