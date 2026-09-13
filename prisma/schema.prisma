@@ -343,3 +343,113 @@ model SystemSetting {
   @@index([key])
   @@index([category])
 }
+
+model EliteCoreSnapshot {
+  id               String   @id @default(cuid())
+  epoch            String   // e.g. "2026-09-13"
+  handle           String
+  displayName      String
+  classification   String   // ELITE_CORE, ELITE, RISING, WATCH, UNPROVEN
+  eliteScore       Float
+  eliteConfidence  Float
+  persistenceScore Float
+  leadScore        Float
+  followScore      Float
+  discoveryScore   Float
+  pnl30d           Float
+  pnl7d            Float
+  pnl24h           Float
+  pnlAll           Float
+  winRate          Float
+  tradeCount       Int
+  primaryChain     String   @default("solana")
+  metadata         String?  // JSON with extra metrics
+  createdAt        DateTime @default(now())
+
+  @@index([epoch, classification])
+  @@index([handle])
+}
+
+model LeaderboardSnapshot {
+  id               String   @id @default(cuid())
+  window           String   // 24h, 7d, 30d
+  rank             Int
+  handle           String
+  displayName      String
+  pnlUsd           Float
+  volumeUsd        Float
+  qualityScore     Float
+  timestamp        DateTime @default(now())
+
+  @@index([window, timestamp])
+  @@index([handle, window])
+}
+
+model PortfolioOverlap {
+  id               String   @id @default(cuid())
+  traderA          String
+  traderB          String
+  jaccardIndex     Float    // 0 - 1
+  sharedTokenCount Int
+  sharedTokens     String   // JSON array of symbols/addresses
+  updatedAt        DateTime @updatedAt
+
+  @@unique([traderA, traderB])
+  @@index([traderA])
+  @@index([traderB])
+}
+
+model LeadLagRelationship {
+  id                 String   @id @default(cuid())
+  leaderHandle       String
+  followerHandle     String
+  confirmationCount  Int      @default(0)
+  avgLeadLagMinutes  Float    @default(0)
+  successRate        Float    @default(0)
+  correlation        Float    @default(0)
+  updatedAt          DateTime @updatedAt
+
+  @@unique([leaderHandle, followerHandle])
+  @@index([leaderHandle])
+  @@index([followerHandle])
+}
+
+model ConsensusSnapshot {
+  id                   String   @id @default(cuid())
+  tokenAddress         String
+  network              String
+  symbol               String
+  lifecycleState       String   // EARLY_CONSENSUS, FRESH_ACCUMULATION, etc.
+  eliteHoldersCount    Int      @default(0)
+  freshAccumulators    Int      @default(0)
+  reducersCount        Int      @default(0)
+  herfindahlIndex      Float    @default(0)
+  concentrationPenalty Float    @default(0)
+  eliteConsensusScore  Float    @default(0)
+  freshAccumScore      Float    @default(0)
+  distributionScore    Float    @default(0)
+  masterEliteAlphaScore Float   @default(0)
+  currentPriceUsd      Float    @default(0)
+  priceExtensionPct    Float    @default(0)
+  timestamp            DateTime @default(now())
+
+  @@index([tokenAddress, network, timestamp])
+  @@index([lifecycleState])
+}
+
+model StrategyBacktestRecord {
+  id              String   @id @default(cuid())
+  strategyName    String
+  timeHorizon     String
+  totalTrades     Int
+  winRatePct      Float
+  profitFactor    Float
+  avgGainPct      Float
+  maxDrawdownPct  Float
+  sharpeRatio     Float
+  alphaVsNaivePct Float
+  runTimestamp    DateTime @default(now())
+
+  @@index([strategyName, timeHorizon])
+}
+

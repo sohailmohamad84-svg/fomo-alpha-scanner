@@ -18,12 +18,36 @@ export default function TradersPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/fomo/leaderboard?window=${windowPeriod}&minScore=${minQualityScore}`);
+      const [res, eliteRes] = await Promise.all([
+        fetch(`/api/fomo/leaderboard?window=${windowPeriod}&minScore=${minQualityScore}`),
+        fetch(`/api/elite/core?window=${windowPeriod}`).catch(() => null),
+      ]);
       if (!res.ok) {
         throw new Error(`Server returned HTTP ${res.status}`);
       }
       const data = await res.json();
-      setTraders(data.traders || []);
+      let eliteMap = new Map<string, any>();
+      if (eliteRes && eliteRes.ok) {
+        const eliteData = await eliteRes.json();
+        if (eliteData.success && eliteData.allEvaluated) {
+          eliteData.allEvaluated.forEach((et: any) => {
+            eliteMap.set(et.handle.toLowerCase(), et);
+          });
+        }
+      }
+
+      const merged = (data.traders || []).map((t: any) => {
+        const em = eliteMap.get(t.handle.toLowerCase());
+        return {
+          ...t,
+          classification: em?.classification || (t.qualityScore >= 75 ? 'ELITE' : 'WATCH'),
+          persistenceScore: em?.persistenceScore ?? 50,
+          leadScore: em?.leadScore ?? 50,
+          eliteScore: em?.eliteScore ?? t.qualityScore,
+        };
+      });
+
+      setTraders(merged);
     } catch (err: any) {
       console.warn('[Traders] Fetch warning:', err.message);
       setError(err.message || 'Failed to load traders. Click retry to reload.');
@@ -185,9 +209,34 @@ export default function TradersPage() {
                           {trader.verified && (
                             <CheckCircle className="h-3 w-3 text-terminal-green" />
                           )}
+                          {trader.classification && (
+                            <span
+                              className={`px-1.5 py-0.2 text-[9px] font-bold rounded ${
+                                trader.classification === 'ELITE_CORE'
+                                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                  : trader.classification === 'RISING'
+                                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                                  : trader.classification === 'ELITE'
+                                  ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
+                                  : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
+                              }`}
+                            >
+                              {trader.classification.replace('_', ' ')}
+                            </span>
+                          )}
                         </div>
-                        <div className="text-[10px] text-terminal-dim font-normal group-hover:text-terminal-muted">
-                          {trader.displayName}
+                        <div className="flex items-center gap-2 text-[10px] text-terminal-dim font-normal group-hover:text-terminal-muted">
+                          <span>{trader.displayName}</span>
+                          {trader.persistenceScore && (
+                            <span className="text-zinc-500">
+                              • Persist: <strong className="text-zinc-300">{trader.persistenceScore}</strong>
+                            </span>
+                          )}
+                          {trader.leadScore && (
+                            <span className="text-zinc-500">
+                              • Lead: <strong className="text-purple-300">{trader.leadScore}</strong>
+                            </span>
+                          )}
                         </div>
                       </div>
                     </Link>

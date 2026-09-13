@@ -24,6 +24,9 @@ import { NarrativeRadar } from '@/components/trading/NarrativeRadar';
 import { WinnerHunterCard } from '@/components/trading/WinnerHunterCard';
 import { AccumulationMap } from '@/components/trading/AccumulationMap';
 import { AlphaResearchAssistant } from '@/components/assistant/AlphaResearchAssistant';
+import { EliteConsensusDashboard } from '@/components/elite/EliteConsensusDashboard';
+import { LeadLagNetworkViewer } from '@/components/elite/LeadLagNetworkViewer';
+import { StrategyArena } from '@/components/elite/StrategyArena';
 
 export default function DashboardPage() {
   const [coins, setCoins] = useState<any[]>([]);
@@ -374,6 +377,15 @@ export default function DashboardPage() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* Elite Consensus & Accumulation Matrix */}
+      <EliteConsensusDashboard />
+
+      {/* Lead-Lag Directed Network & 5-Strategy Empirical Arena */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <LeadLagNetworkViewer />
+        <StrategyArena />
       </div>
 
       {/* Cross-Sectional Accumulation Matrix */}
