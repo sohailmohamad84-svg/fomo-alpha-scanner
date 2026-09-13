@@ -7,8 +7,10 @@ export interface EarlyEntryTimelineItem {
   priceUsd: number;
   timestamp: Date;
   timeFormatted: string;
+  dateFormatted: string;
   minutesAfterFirst: number;
   isFirst: boolean;
+  isCriteriaMet?: boolean;
 }
 
 export interface EarlyEntryDetectionResult {
@@ -16,6 +18,7 @@ export interface EarlyEntryDetectionResult {
   firstBuyer: string | null;
   firstBuyTime: Date | null;
   firstBuyTimeFormatted: string | null;
+  firstBuyDateFormatted: string | null;
   firstBuyPriceUsd: number | null;
   followingTradersCount: number;
   accumulationWindowMinutes: number;
@@ -23,6 +26,11 @@ export interface EarlyEntryDetectionResult {
   averageFollowerDelayMinutes: number;
   timeline: EarlyEntryTimelineItem[];
   bannerText: string;
+  criteriaMet: boolean;
+  criteriaTriggerTrader: string | null;
+  criteriaTriggerTime: Date | null;
+  criteriaTriggerPriceUsd: number | null;
+  criteriaTriggerDelayMinutes: number;
 }
 
 export function detectEarlyEntry(
@@ -39,6 +47,7 @@ export function detectEarlyEntry(
       firstBuyer: null,
       firstBuyTime: null,
       firstBuyTimeFormatted: null,
+      firstBuyDateFormatted: null,
       firstBuyPriceUsd: null,
       followingTradersCount: 0,
       accumulationWindowMinutes: 0,
@@ -46,6 +55,11 @@ export function detectEarlyEntry(
       averageFollowerDelayMinutes: 0,
       timeline: [],
       bannerText: 'No buy accumulation detected',
+      criteriaMet: false,
+      criteriaTriggerTrader: null,
+      criteriaTriggerTime: null,
+      criteriaTriggerPriceUsd: null,
+      criteriaTriggerDelayMinutes: 0,
     };
   }
 
@@ -84,8 +98,10 @@ export function detectEarlyEntry(
       priceUsd: t.priceUsd,
       timestamp: tTime,
       timeFormatted: tTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      dateFormatted: tTime.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }),
       minutesAfterFirst: delay,
       isFirst: index === 0,
+      isCriteriaMet: index === 1, // Second trader entry fulfills 2+ trader convergence criteria!
     };
   });
 
@@ -107,6 +123,16 @@ export function detectEarlyEntry(
     ? `Multiple buyers detected across ${accumulationWindow}m window`
     : `Single initial entry by @${firstBuyer}`;
 
+  // Criteria Trigger Info (2+ smart traders, triggered on 2nd buyer)
+  const criteriaTriggerTrade = chronologicalBuys.length >= 2 ? chronologicalBuys[1] : null;
+  const criteriaMet = !!criteriaTriggerTrade;
+  const criteriaTriggerTrader = criteriaTriggerTrade ? criteriaTriggerTrade.traderHandle : null;
+  const criteriaTriggerTime = criteriaTriggerTrade ? new Date(criteriaTriggerTrade.timestamp) : null;
+  const criteriaTriggerPriceUsd = criteriaTriggerTrade ? criteriaTriggerTrade.priceUsd : null;
+  const criteriaTriggerDelayMinutes = criteriaTriggerTrade && firstBuyTime
+    ? Math.max(0, Math.round((new Date(criteriaTriggerTrade.timestamp).getTime() - firstBuyTime.getTime()) / (60 * 1000)))
+    : 0;
+
   return {
     hasAccumulation,
     firstBuyer,
@@ -115,6 +141,11 @@ export function detectEarlyEntry(
       hour: '2-digit',
       minute: '2-digit',
     }),
+    firstBuyDateFormatted: firstBuyTime.toLocaleDateString([], {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }),
     firstBuyPriceUsd,
     followingTradersCount: followingCount,
     accumulationWindowMinutes: accumulationWindow,
@@ -122,5 +153,10 @@ export function detectEarlyEntry(
     averageFollowerDelayMinutes: avgDelay,
     timeline,
     bannerText: banner,
+    criteriaMet,
+    criteriaTriggerTrader,
+    criteriaTriggerTime,
+    criteriaTriggerPriceUsd,
+    criteriaTriggerDelayMinutes,
   };
 }
