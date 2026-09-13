@@ -71,9 +71,11 @@ export class FomoApiClient {
     ttlMs: number = 30000
   ): Promise<T> {
     const cacheKey = `${endpoint}_${JSON.stringify(options)}`;
-    const cached = this.cache.get(cacheKey);
-    if (cached && cached.expiresAt > Date.now()) {
-      return cached.data;
+    if (ttlMs > 0) {
+      const cached = this.cache.get(cacheKey);
+      if (cached && cached.expiresAt > Date.now()) {
+        return cached.data;
+      }
     }
 
     if (!this.hasApiKey()) {
@@ -99,6 +101,7 @@ export class FomoApiClient {
       const res = await fetch(url, {
         ...options,
         headers,
+        cache: 'no-store',
       });
 
       // Parse credit headers
@@ -121,7 +124,9 @@ export class FomoApiClient {
       }
 
       const data: T = await res.json();
-      this.cache.set(cacheKey, { data, expiresAt: Date.now() + ttlMs });
+      if (ttlMs > 0) {
+        this.cache.set(cacheKey, { data, expiresAt: Date.now() + ttlMs });
+      }
       return data;
     } catch (err: any) {
       console.warn(`[FOMO Client] Fetch error on ${endpoint}: ${err.message}. Falling back to simulation.`);
@@ -363,7 +368,7 @@ export class FomoApiClient {
   }
 
   public async getMe(): Promise<FomoMeResponse> {
-    const res = await this.fetchWithAuth<FomoMeResponse>('/v2/me', {}, 60000);
+    const res = await this.fetchWithAuth<FomoMeResponse>('/v2/me', { cache: 'no-store' }, 0);
     if (res && res.credits) {
       if (typeof res.credits.remaining === 'number') {
         this.credits.remainingCredits = res.credits.remaining;

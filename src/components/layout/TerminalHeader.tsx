@@ -8,8 +8,19 @@ import { Activity, ShieldCheck, Zap, Search, Coins, RefreshCw } from 'lucide-rea
 export function TerminalHeader() {
   const [utcTime, setUtcTime] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [credits, setCredits] = useState<number | null>(159125);
+  const [credits, setCredits] = useState<number | null>(null);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const router = useRouter();
+
+  const fetchCredits = async () => {
+    try {
+      const res = await fetch('/api/health', { cache: 'no-store' });
+      const data = await res.json();
+      if (typeof data?.credits?.remaining === 'number') {
+        setCredits(data.credits.remaining);
+      }
+    } catch {}
+  };
 
   useEffect(() => {
     const updateTime = () => {
@@ -22,14 +33,10 @@ export function TerminalHeader() {
   }, []);
 
   useEffect(() => {
-    fetch('/api/health')
-      .then((res) => res.json())
-      .then((data) => {
-        if (typeof data?.credits?.remaining === 'number') {
-          setCredits(data.credits.remaining);
-        }
-      })
-      .catch(() => {});
+    fetchCredits();
+    // Poll every 10 seconds to keep synced with FOMO API
+    const interval = setInterval(fetchCredits, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -83,16 +90,30 @@ export function TerminalHeader() {
         {/* Live System Status & Telemetry */}
         <div className="flex items-center gap-3 text-xs font-mono">
           {/* Credits Meter */}
-          <Link
-            href="/api-health"
-            className="hidden lg:flex items-center gap-1.5 rounded border border-terminal-border bg-terminal-bg px-2.5 py-1 text-terminal-muted hover:border-terminal-muted/60 transition-colors"
-          >
-            <Coins className="h-3.5 w-3.5 text-terminal-amber" />
-            <span>Credits:</span>
-            <span className="font-bold text-terminal-text">
-              {credits !== null ? credits.toLocaleString() : '159,125'}
-            </span>
-          </Link>
+          <div className="hidden lg:flex items-center gap-1">
+            <Link
+              href="/api-health"
+              className="flex items-center gap-1.5 rounded-l border border-terminal-border bg-terminal-bg px-2.5 py-1 text-terminal-muted hover:border-terminal-muted/60 transition-colors"
+            >
+              <Coins className="h-3.5 w-3.5 text-terminal-amber" />
+              <span>Credits:</span>
+              <span className="font-bold text-terminal-text">
+                {credits !== null ? credits.toLocaleString() : 'Syncing...'}
+              </span>
+            </Link>
+            <button
+              onClick={async (e) => {
+                e.preventDefault();
+                setIsSyncing(true);
+                await fetchCredits();
+                setTimeout(() => setIsSyncing(false), 600);
+              }}
+              title="Sync credits with FOMO API"
+              className="flex items-center justify-center p-1 rounded-r border-t border-b border-r border-terminal-border bg-terminal-bg text-terminal-dim hover:text-terminal-text hover:border-terminal-muted/60 transition-colors"
+            >
+              <RefreshCw className={`h-3 w-3 ${isSyncing ? 'animate-spin text-terminal-green' : ''}`} />
+            </button>
+          </div>
 
           {/* Stream Status */}
           <div className="flex items-center gap-1.5 rounded border border-terminal-border bg-terminal-bg px-2 py-1">

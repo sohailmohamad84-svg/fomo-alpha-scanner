@@ -37,10 +37,10 @@ export default function DashboardPage() {
   const fetchDashboardData = async () => {
     try {
       const [coinsRes, statsRes, intelRes, healthRes] = await Promise.all([
-        fetch('/api/fomo/tokens/winning'),
-        fetch('/api/paper-trading/stats'),
-        fetch('/api/intelligence/summary'),
-        fetch('/api/health'),
+        fetch('/api/fomo/tokens/winning', { cache: 'no-store' }),
+        fetch('/api/paper-trading/stats', { cache: 'no-store' }),
+        fetch('/api/intelligence/summary', { cache: 'no-store' }),
+        fetch('/api/health', { cache: 'no-store' }),
       ]);
       const coinsData = await coinsRes.json();
       const statsData = await statsRes.json();
@@ -60,6 +60,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchDashboardData();
+    const interval = setInterval(fetchDashboardData, 15000);
 
     // Listen to real-time SSE stream
     let eventSource: EventSource | null = null;
@@ -74,6 +75,7 @@ export default function DashboardPage() {
     } catch (e) {}
 
     return () => {
+      clearInterval(interval);
       if (eventSource) eventSource.close();
     };
   }, []);
@@ -175,7 +177,7 @@ export default function DashboardPage() {
               ? (health.credits.remaining >= 1000000
                   ? `${(health.credits.remaining / 1000000).toFixed(2)}M`
                   : health.credits.remaining.toLocaleString())
-              : '159,125'
+              : 'Syncing...'
           }
           subValue={
             health?.credits?.plan

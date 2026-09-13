@@ -19,7 +19,7 @@ export default function ApiHealthPage() {
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchHealth = () => {
-    fetch('/api/health')
+    fetch('/api/health', { cache: 'no-store' })
       .then((res) => res.json())
       .then((d) => {
         setData(d);
