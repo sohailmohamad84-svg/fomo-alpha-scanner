@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Users, Filter, CheckCircle, ShieldCheck, Award, ExternalLink, RefreshCw } from 'lucide-react';
+import { Users, Filter, CheckCircle, ShieldCheck, Award, ExternalLink, RefreshCw, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 
 export default function TradersPage() {
@@ -12,6 +12,7 @@ export default function TradersPage() {
   const [windowPeriod, setWindowPeriod] = useState<string>('24h');
   const [minQualityScore, setMinQualityScore] = useState<number>(60);
   const [verifiedOnly, setVerifiedOnly] = useState<boolean>(false);
+  const [searchFilter, setSearchFilter] = useState<string>('');
 
   const fetchTraders = async () => {
     setLoading(true);
@@ -35,7 +36,16 @@ export default function TradersPage() {
     fetchTraders();
   }, [windowPeriod, minQualityScore]);
 
-  const filtered = verifiedOnly ? traders.filter((t) => t.verified) : traders;
+  const filtered = traders.filter((t) => {
+    if (verifiedOnly && !t.verified) return false;
+    if (searchFilter.trim()) {
+      const q = searchFilter.toLowerCase().trim();
+      const matchHandle = t.handle?.toLowerCase().includes(q);
+      const matchDisplay = t.displayName?.toLowerCase().includes(q);
+      if (!matchHandle && !matchDisplay) return false;
+    }
+    return true;
+  });
 
   return (
     <div className="space-y-5">
@@ -76,6 +86,17 @@ export default function TradersPage() {
       {/* Universe Configuration Toolbar */}
       <div className="rounded border border-terminal-border bg-terminal-panel p-3.5 flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
         <div className="flex flex-wrap items-center gap-4">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-terminal-muted" />
+            <input
+              type="text"
+              placeholder="Search @handle or name..."
+              value={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+              className="rounded border border-terminal-border bg-terminal-bg pl-8 pr-3 py-1.5 font-mono text-xs text-terminal-text placeholder-terminal-dim focus:border-terminal-green focus:outline-none w-48 sm:w-56"
+            />
+          </div>
+
           <div className="flex items-center gap-2">
             <span className="text-terminal-dim">Min Quality Score:</span>
             <input
@@ -85,7 +106,7 @@ export default function TradersPage() {
               step="5"
               value={minQualityScore}
               onChange={(e) => setMinQualityScore(parseInt(e.target.value, 10))}
-              className="accent-terminal-green cursor-pointer w-28"
+              className="accent-terminal-green cursor-pointer w-24"
             />
             <span className="font-bold text-terminal-green">{minQualityScore}</span>
           </div>
@@ -101,8 +122,13 @@ export default function TradersPage() {
           </label>
         </div>
 
-        <div className="text-terminal-dim text-[11px]">
-          Showing <strong>{filtered.length}</strong> elite traders in universe
+        <div className="flex items-center gap-3 text-[11px] font-mono">
+          <span className="text-terminal-dim">
+            Showing <strong>{filtered.length}</strong> traders in universe
+          </span>
+          <span className="rounded border border-terminal-border/80 bg-zinc-900/80 px-2 py-0.5 text-[10px] text-terminal-muted">
+            Source: FOMO API /v2/leaderboard/{windowPeriod}
+          </span>
         </div>
       </div>
 
